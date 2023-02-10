@@ -51,6 +51,7 @@ interface IProps extends TableProps {
     keys: string;
     orders: string;
   }) => void;
+  alignTextOnCenter?: boolean;
 }
 
 function createSortQueryString(order: IOrdering, titles: SortProps[]) {
@@ -80,6 +81,7 @@ export const ProductTable = memo(
     data,
     rowsStyles,
     actionAfterOrdering,
+    alignTextOnCenter,
     ...rest
   }: IProps) => {
     const [order, setOrder] = useState({} as IOrdering);
@@ -104,9 +106,9 @@ export const ProductTable = memo(
     };
 
     return content.length > 0 ? (
-      <Box overflowX='auto' height='500px'>
-        <Table size='lg' {...rest}>
-          <Thead bg={colors.black[900]}>
+      <Box overflowX='auto' {...rest}>
+        <Table size='lg'>
+          <Thead bg={colors.black[900]} textAlign='center'>
             <Tr>
               {titles.map((title, index) => {
                 const cursorType =
@@ -129,7 +131,9 @@ export const ProductTable = memo(
                     height='60px'
                     bg={order?.[title] ? colors.black[500] : colors.black[900]}
                   >
-                    <Flex alignItems='center' justifyContent='space-between'>
+                    <Flex
+                      justifyContent={alignTextOnCenter ? 'center' : 'initial'}
+                    >
                       {title}
 
                       <Box minWidth='17px' ml='10px'>
@@ -162,7 +166,12 @@ export const ProductTable = memo(
                 {...rowsStyles?.find((row) => row.rowIndex === i)?.styles}
               >
                 {row.map((val: ReactNode | JSX.Element, index: number) => (
-                  <Td key={index}>{val}</Td>
+                  <Td
+                    key={index}
+                    textAlign={alignTextOnCenter ? 'center' : 'initial'}
+                  >
+                    {val}
+                  </Td>
                 ))}
               </Tr>
             ))}
