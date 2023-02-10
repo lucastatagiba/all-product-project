@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { Button, Center, Flex, Text, useToast } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
 import { IRowStyle, ProductTable } from 'src/components/Table';
@@ -54,8 +55,9 @@ export default function Home() {
   });
   const [ordenation, setOrdenation] = useState<Ordenation>();
   const toast = useToast();
+  const router = useRouter();
   const totalProduct = useRef<number>();
-  const { handleLogout } = useUserContext();
+  const { handleLogout, userAuth } = useUserContext();
 
   const isAuthenticated = useIsAuthenticated();
 
@@ -85,7 +87,6 @@ export default function Home() {
 
       setProducts(response.data);
     } catch (error: any) {
-      console.log(error.message);
       if (error.status === 401 && error.message.includes('token')) {
         if (!toast.isActive('token-error-id')) {
           toast({
@@ -196,7 +197,7 @@ export default function Home() {
       return [
         <Text key={id}>{id}</Text>,
         <Text key={id}>{name}</Text>,
-        <Text key={id}>{cost}</Text>,
+        <Text key={id}>R$ {cost},00</Text>,
         <Text key={id}>{quantity}</Text>,
         <Text key={id}>
           {locations.find((location) => location.id === locationId)?.name ?? ''}
@@ -244,7 +245,20 @@ export default function Home() {
           titles={titles.map((title) => title.title)}
           actionAfterOrdering={(query) => setOrdenation(query)}
           rowsStyles={rowStyles}
+          height='500px'
         />
+        {userAuth?.usuario.isAdmin && (
+          <Flex flexDirection='row-reverse' m='20px 10px'>
+            <Button
+              bg={colors.gray['700']}
+              _hover={{ background: colors.gray['400'] }}
+              color={colors.gray['800']}
+              onClick={() => router.push('/report-product')}
+            >
+              Acessar relatório
+            </Button>
+          </Flex>
+        )}
 
         <Center
           flexDirection={{
