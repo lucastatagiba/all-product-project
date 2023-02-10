@@ -27,7 +27,8 @@ apiWithAuth.interceptors.response.use(
       removeAuthStorage();
       Router.push('/login');
     }
-    return error;
+
+    return Promise.reject(error.response?.data);
   }
 );
 
