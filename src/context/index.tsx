@@ -34,7 +34,6 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
   };
 
   const handleLogout = () => {
-    setUserAuth(undefined);
     removeAuthStorage();
     router.push('/login');
   };

@@ -41,4 +41,12 @@ export const theme = extendTheme({
     body: 'Roboto, sans-serif',
   },
   colors,
+
+  styles: {
+    global: {
+      body: {
+        bg: colors.gray['300'],
+      },
+    },
+  },
 });
