@@ -1,11 +1,23 @@
-import { useEffect, useState } from 'react';
+import { KeyboardEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Button, Flex, Input, Text, useToast } from '@chakra-ui/react';
-import { colors } from 'src/styles/theme';
+import Head from 'next/head';
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Icon,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+} from '@chakra-ui/react';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import { IAuthState } from 'src/utils/storage';
 import { useUserContext } from 'src/context/authProvider';
-import { apiWithAuth } from 'src/services';
-import Head from 'next/head';
+import { apiWithAuth, routes } from 'src/services';
 import { useIsAuthenticated } from 'src/hooks';
 
 type InputValue = {
@@ -16,9 +28,14 @@ type InputValue = {
 const Login = () => {
   const { handleLogin } = useUserContext();
   const [inputValue, setInputValue] = useState({} as InputValue);
-  const toast = useToast();
   const router = useRouter();
   const isAuthenticated = useIsAuthenticated();
+  const [loginError, setLoginError] = useState<string>();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const hasInputValue = inputValue.email?.length && inputValue.password?.length;
+  const hasLoginError = !!loginError?.length;
 
   useEffect(() => {
     if (isAuthenticated) router.push('/');
@@ -26,21 +43,23 @@ const Login = () => {
 
   const submitLogin = async () => {
     try {
-      const { data } = await apiWithAuth.post<IAuthState>('/auth/login', {
+      setIsLoading(true);
+      const { data } = await apiWithAuth.post<IAuthState>(routes.auth.login, {
         email: inputValue.email,
         password: inputValue.password,
       });
 
       handleLogin(data);
-    } catch (error: any) {
-      toast({
-        description: 'Email ou senha inválidos',
-        status: 'error',
-        duration: 4000,
-        position: 'top-right',
-        containerStyle: { color: 'white' },
-        isClosable: true,
-      });
+    } catch (error) {
+      setLoginError('Email ou senha inválidos');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeypress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      submitLogin();
     }
   };
 
@@ -52,9 +71,8 @@ const Login = () => {
       alignItems='center'
       w={300}
       h={400}
-      bg={colors.gray[800]}
+      bg='blackAlpha.700'
       margin='100px auto'
-      color={colors.white['pure']}
       gap={5}
       borderRadius={5}
     >
@@ -64,34 +82,91 @@ const Login = () => {
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link rel='icon' href='/shoppingcart_80945.png' />
       </Head>
-      <Text fontWeight='700' fontSize={30} mt={10}>
+      <Text fontWeight='700' fontSize={30} mt={10} color='gray.300'>
         Login
       </Text>
+      <FormControl
+        isInvalid={!!loginError?.length}
+        color='gray.300'
+        isRequired
+        onSubmit={submitLogin}
+      >
+        <Flex flexDirection='column' alignItems='center'>
+          <Box w='90%'>
+            <FormLabel>Email:</FormLabel>
+            <Input
+              value={inputValue.email}
+              onKeyDown={handleKeypress}
+              placeholder='Insira seu email'
+              _placeholder={{
+                color: 'gray',
+              }}
+              bg='blackAlpha.400'
+              name='email'
+              type='email'
+              onChange={(e) => {
+                setLoginError('');
+                setInputValue((old) => ({ ...old, email: e.target.value }));
+              }}
+            />
+          </Box>
+          <Box w='90%' mt={8}>
+            <FormLabel>Password:</FormLabel>
+            <InputGroup>
+              <Input
+                value={inputValue.password}
+                onKeyDown={handleKeypress}
+                placeholder='Insira sua senha'
+                _placeholder={{
+                  color: 'gray',
+                }}
+                bg='blackAlpha.400'
+                name='password'
+                type={showPassword ? 'text' : 'password'}
+                onChange={(e) => {
+                  setLoginError('');
+                  setInputValue((old) => ({
+                    ...old,
+                    password: e.target.value,
+                  }));
+                }}
+              />
 
-      <Input
-        w='90%'
-        value={inputValue.email}
-        mt={10}
-        placeholder='email'
-        name='email'
-        type='email'
-        onChange={(e) => {
-          setInputValue((old) => ({ ...old, email: e.target.value }));
-        }}
-      />
-      <Input
-        w='90%'
-        value={inputValue.password}
-        placeholder='password'
-        name='password'
-        type='password'
-        onChange={(e) => {
-          setInputValue((old) => ({ ...old, password: e.target.value }));
-        }}
-      />
-      <Button onClick={submitLogin} mt={10} colorScheme='blackAlpha'>
-        Login
-      </Button>
+              <InputRightElement width='2rem' mr='5px'>
+                <Icon
+                  h='2rem'
+                  w='1.5rem'
+                  cursor='pointer'
+                  color='gray.300'
+                  as={showPassword ? AiFillEyeInvisible : AiFillEye}
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              </InputRightElement>
+            </InputGroup>
+          </Box>
+
+          <Box height={4}>
+            {!hasInputValue ? (
+              <FormErrorMessage>
+                Os campos acima são obrigatórios!
+              </FormErrorMessage>
+            ) : (
+              hasLoginError && <FormErrorMessage>{loginError}</FormErrorMessage>
+            )}
+          </Box>
+
+          <Button
+            isLoading={isLoading}
+            onClick={submitLogin}
+            mt={10}
+            colorScheme='blackAlpha'
+            type='submit'
+            color='gray.300'
+          >
+            Login
+          </Button>
+        </Flex>
+      </FormControl>
     </Flex>
   );
 };

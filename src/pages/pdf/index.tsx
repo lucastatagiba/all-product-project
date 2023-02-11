@@ -1,8 +1,12 @@
+import { useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { Page, Document, StyleSheet, View, Text } from '@react-pdf/renderer';
 import { PDFViewer } from '@react-pdf/renderer';
 import PageWithAuth from 'src/components/PageWithAuth';
 import { Transactions, useReportContext } from 'src/context/reportProvider';
+import { useUserContext } from 'src/context/authProvider';
+import { useIsAuthenticated } from 'src/hooks';
 
 const styles = StyleSheet.create({
   page: {
@@ -41,15 +45,15 @@ const PdfDocument = ({ transactions }: { transactions: Transactions[] }) => {
   const contentTransactions = transactions.map((transaction) => {
     const { id, cost, quantity, product } = transaction;
     return (
-      <>
-        <View key={id} style={[styles.column, { fontSize: 10 }]}>
+      <div key={id}>
+        <View style={[styles.column, { fontSize: 10 }]}>
           <Text style={[styles.row]}>{product.name}</Text>
           <Text style={[styles.row]}>{quantity}</Text>
           <Text style={[styles.row]}>R$ {product.cost},00</Text>
           <Text style={[styles.row]}>R$ {quantity * cost},00</Text>
         </View>
         <View style={styles.line}></View>
-      </>
+      </div>
     );
   });
 
@@ -78,8 +82,23 @@ const PdfDocument = ({ transactions }: { transactions: Transactions[] }) => {
   );
 };
 
-export default function Pdf() {
+const Pdf = () => {
   const { transactions } = useReportContext();
+  const isAuthenticated = useIsAuthenticated();
+  const { userAuth } = useUserContext();
+
+  const router = useRouter();
+  const isAdmin = userAuth?.usuario.isAdmin;
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    } else if (!isAdmin) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router, isAdmin]);
+
+  if (isAuthenticated && !isAdmin) return null;
 
   return (
     <>
@@ -97,4 +116,6 @@ export default function Pdf() {
       </PageWithAuth>
     </>
   );
-}
+};
+
+export default Pdf;

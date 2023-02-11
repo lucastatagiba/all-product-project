@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import { Button, Flex, Text } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
-import { IRowStyle, ProductTable } from 'src/components/Table';
-import { colors } from 'src/styles/theme';
-import { TbLogout } from 'react-icons/tb';
+import { IRowStyle, Table } from 'src/components/Table';
 import { useUserContext } from 'src/context/authProvider';
 import { useIsAuthenticated } from 'src/hooks';
 import { useRouter } from 'next/router';
 import { useReportContext } from 'src/context/reportProvider';
+import Header from 'src/components/header';
 
 const titles = [
   { title: 'Produto', value: '' },
@@ -17,26 +16,23 @@ const titles = [
   { title: 'Preço Total', value: '' },
 ];
 
-export default function Report() {
+const Report = () => {
   const router = useRouter();
-  const { handleLogout, userAuth } = useUserContext();
+  const { userAuth } = useUserContext();
 
   const { transactions } = useReportContext();
 
   const isAuthenticated = useIsAuthenticated();
 
-  const totalQuantity = useRef<number>(
-    transactions.reduce((acc, transaction) => transaction.quantity + acc, 0) ??
-      0
-  );
+  const isAdmin = userAuth?.usuario.isAdmin;
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
-    } else if (!userAuth?.usuario.isAdmin) {
+    } else if (!isAdmin) {
       router.push('/');
     }
-  }, [isAuthenticated, router, userAuth?.usuario.isAdmin]);
+  }, [isAuthenticated, router, isAdmin]);
 
   const rowStyles = useMemo<IRowStyle[]>(
     () =>
@@ -62,7 +58,7 @@ export default function Report() {
     });
   }, [transactions]);
 
-  if (!isAuthenticated) return null;
+  if (isAuthenticated && !isAdmin) return null;
 
   return (
     <>
@@ -74,27 +70,14 @@ export default function Report() {
       </Head>
 
       <PageWithAuth>
-        <Flex
-          justifyContent='space-around'
-          fontWeight='700'
-          bg={colors.gray['800']}
-          h='100px'
-          alignItems='center'
-          color={colors.gray['300']}
-        >
-          <Text>{`Quantidade Total: [${totalQuantity.current}]`}</Text>
-          <Flex
-            gap={2}
-            alignItems='center'
-            fontSize={18}
-            cursor='pointer'
-            onClick={handleLogout}
-          >
-            Sair <TbLogout size={30} color={colors.gray['300']} />
-          </Flex>
-        </Flex>
+        <Header
+          leftContentHeader={`Quantidade Total: [${transactions.reduce(
+            (acc, transaction) => transaction.quantity + acc,
+            0
+          )}]`}
+        />
 
-        <ProductTable
+        <Table
           content={tableContent}
           titlesAndValues={titles}
           titles={titles.map((title) => title.title)}
@@ -109,4 +92,5 @@ export default function Report() {
       </PageWithAuth>
     </>
   );
-}
+};
+export default Report;

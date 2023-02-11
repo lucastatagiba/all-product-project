@@ -3,11 +3,10 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Button, Center, Flex, Text, useToast } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
-import { IRowStyle, ProductTable } from 'src/components/Table';
-import { colors } from 'src/styles/theme';
-import { TbLogout } from 'react-icons/tb';
-import { apiWithAuth } from 'src/services';
+import { IRowStyle, Table } from 'src/components/Table';
 import { useUserContext } from 'src/context/authProvider';
+import Header from 'src/components/header';
+import { apiWithAuth, routes } from 'src/services';
 import { useIsAuthenticated } from 'src/hooks';
 
 const titles = [
@@ -36,16 +35,6 @@ interface Products {
   };
 }
 
-interface Locations {
-  id: number;
-  name: string;
-}
-
-interface Families {
-  id: number;
-  name: string;
-}
-
 interface Pagination {
   _page: number;
 }
@@ -54,7 +43,7 @@ interface Ordenation {
   orders: string;
 }
 
-export default function Home() {
+const ProductList = () => {
   const [products, setProducts] = useState([] as Products[]);
   const [pagination, setPagination] = useState<Pagination>({
     _page: 1,
@@ -62,8 +51,10 @@ export default function Home() {
   const [ordenation, setOrdenation] = useState<Ordenation>();
   const toast = useToast();
   const router = useRouter();
-  const totalProduct = useRef<number>();
-  const { handleLogout, userAuth } = useUserContext();
+  const totalProduct = useRef<number>(0);
+  const { userAuth } = useUserContext();
+  const isLastPage = totalProduct.current < pagination._page * 6;
+  const isFirstPage = pagination._page <= 1;
 
   const isAuthenticated = useIsAuthenticated();
 
@@ -81,17 +72,15 @@ export default function Home() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await apiWithAuth.get<Products[]>(
-        '/products?_expand=family&_expand=location',
-        {
-          params: {
-            ...pagination,
-            _limit: 6,
-            _sort: ordenation?.keys,
-            _order: ordenation?.orders,
-          },
-        }
-      );
+      const response = await apiWithAuth.get<Products[]>(routes.product.list, {
+        params: {
+          ...pagination,
+          _limit: 6,
+          _sort: ordenation?.keys,
+          _order: ordenation?.orders,
+        },
+      });
+      //total de produtos encontrados
       totalProduct.current = response.headers['x-total-count'];
 
       setProducts(response.data);
@@ -154,27 +143,11 @@ export default function Home() {
       </Head>
 
       <PageWithAuth>
-        <Flex
-          justifyContent='space-around'
-          fontWeight='700'
-          bg={colors.gray['800']}
-          h='100px'
-          alignItems='center'
-          color={colors.gray['300']}
-        >
-          <Text>{`Total de Produtos: [${totalProduct.current}]`}</Text>
-          <Flex
-            gap={2}
-            alignItems='center'
-            fontSize={18}
-            cursor='pointer'
-            onClick={handleLogout}
-          >
-            Sair <TbLogout size={30} color={colors.gray['300']} />
-          </Flex>
-        </Flex>
+        <Header
+          leftContentHeader={`Total de Produtos: [${totalProduct.current}]`}
+        />
 
-        <ProductTable
+        <Table
           content={tableContent}
           titlesAndValues={titles}
           titles={titles.map((title) => title.title)}
@@ -202,10 +175,10 @@ export default function Home() {
         >
           <Flex mt='100px' gap={20}>
             <Button
-              isDisabled={pagination._page === 1}
+              isDisabled={isFirstPage}
               colorScheme='blackAlpha'
               onClick={() => {
-                if (pagination._page > 1) {
+                if (!isFirstPage) {
                   setPagination({
                     _page: pagination._page - 1,
                   });
@@ -217,15 +190,9 @@ export default function Home() {
             <Text fontWeight='700'>{`Página: [${pagination._page}]`}</Text>
             <Button
               colorScheme='blackAlpha'
-              isDisabled={
-                !!totalProduct.current &&
-                totalProduct.current < pagination._page * 6
-              }
+              isDisabled={isLastPage}
               onClick={() => {
-                if (
-                  !!totalProduct.current &&
-                  totalProduct.current > pagination._page * 6
-                ) {
+                if (!isLastPage) {
                   setPagination({
                     _page: pagination._page + 1,
                   });
@@ -239,4 +206,6 @@ export default function Home() {
       </PageWithAuth>
     </>
   );
-}
+};
+
+export default ProductList;
