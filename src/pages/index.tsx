@@ -58,17 +58,16 @@ const ProductList = () => {
 
   const isAuthenticated = useIsAuthenticated();
 
-  const rowStyles = useMemo<IRowStyle[]>(
-    () =>
-      products.map((_, index) => ({
-        rowIndex: index,
-        styles: {
-          fontSize: 18,
-          fontWeight: 700,
-        },
-      })),
-    [products]
-  );
+  const rowStyles = useMemo<IRowStyle[]>(() => {
+    if (!products.length) return [];
+    return products.map((_, index) => ({
+      rowIndex: index,
+      styles: {
+        fontSize: 18,
+        fontWeight: 700,
+      },
+    }));
+  }, [products]);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -120,6 +119,7 @@ const ProductList = () => {
   }, [pagination, ordenation, isAuthenticated, fetchProducts]);
 
   const tableContent = useMemo(() => {
+    if (!products.length) return [];
     return products.map((product) => {
       const { id, name, cost, quantity, location, family } = product;
       return [
