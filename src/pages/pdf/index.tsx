@@ -45,15 +45,15 @@ const PdfDocument = ({ transactions }: { transactions: Transactions[] }) => {
   const contentTransactions = transactions.map((transaction) => {
     const { id, cost, quantity, product } = transaction;
     return (
-      <>
-        <View key={id} style={[styles.column, { fontSize: 10 }]}>
+      <div key={id}>
+        <View style={[styles.column, { fontSize: 10 }]}>
           <Text style={[styles.row]}>{product.name}</Text>
           <Text style={[styles.row]}>{quantity}</Text>
           <Text style={[styles.row]}>R$ {product.cost},00</Text>
           <Text style={[styles.row]}>R$ {quantity * cost},00</Text>
         </View>
         <View style={styles.line}></View>
-      </>
+      </div>
     );
   });
 
@@ -98,7 +98,7 @@ export default function Pdf() {
     }
   }, [isAuthenticated, router, isAdmin]);
 
-  if (!isAuthenticated || isAdmin) return null;
+  if (!isAuthenticated || !isAdmin) return null;
 
   return (
     <>
