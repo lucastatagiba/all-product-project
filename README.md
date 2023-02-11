@@ -13,7 +13,7 @@ Projeto consome uma API fake (json server).
 - Se o token do usuário expirar (expira em 1 hora), ao tentar acessar qualquer rota existente ele será redirecionado para o login com um token avisando-o da expiração do token. 
 - Se o usuário tentar acessar uma rota inexistente, ele será redirecionado para uma tela personalizada de erro.
 
-Link: 
+Link: https://all-product-project-1wdzeshy8-lucastatagiba.vercel.app/login
 
 
 ```bash
@@ -38,7 +38,7 @@ Usuários criados: {
 
 # Páginas:
 
-- ## Login(rota: link/login): 
+- ## Login(rota: [(https://all-product-project-1wdzeshy8-lucastatagiba.vercel.app/login)](https://all-product-project-1wdzeshy8-lucastatagiba.vercel.app/login)): 
 - ### Features: Foi criado uma página de login totalmente responsiva com 2 inputs (primeiro: email, segundo: password) com todas as seguintes validações:
 - Campo obrigatório (se deixar algum campo vazio, uma mensagem de erro aparecerá abaixo dos inputs)
 - Login ou senha (se o usuário errar login ou senha, uma mensagem de erro aparecerá abaixo dos inputs)
@@ -46,18 +46,18 @@ Usuários criados: {
 
 
 
-- ## Lista de Produtos(rota: link/): 
+- ## Lista de Produtos(rota: [(https://all-product-project-1wdzeshy8-lucastatagiba.vercel.app/)](https://all-product-project-1wdzeshy8-lucastatagiba.vercel.app/)): 
 - ### Features: Foi criado uma página de lista de produtos totalmente responsiva com *header(Possui um texto dizendo o total de produtos e um botão para deslogar), *tabela com a lista de produtos(A lista possui ordenação nos titúlos e paginação totalmente dinamico consumida pela api), *Botão para acessar relatório(Somente usuário que for admin possui acesso a esse botão)
 
 
 
-- ## Relatório(rota: link/report-product)**Somente usuário Admin pode acessar essa rota: 
+- ## Relatório(rota: [(https://all-product-project-1wdzeshy8-lucastatagiba.vercel.app/report-product)](https://all-product-project-1wdzeshy8-lucastatagiba.vercel.app/report-product))**Somente usuário Admin pode acessar essa rota: 
 - ### Features: Foi criado uma página de relatório de produto totalmente responsiva com *header(Possui um texto dizendo a quantidade total de produto e um botão para deslogar), *tabela com a lista do relatório vinda da API(não possui ordenação e paginação), *Botão para gerar o relatório em pdf(irá encaminhar o usuário para a tela de pdf com os dados do relatório)
 
 
 
 
-- ## PDF(rota: link/pdf)**Somente usuário Admin pode acessar essa rota: 
+- ## PDF(rota: [(https://all-product-project-1wdzeshy8-lucastatagiba.vercel.app/pdf)](https://all-product-project-1wdzeshy8-lucastatagiba.vercel.app/pdf))**Somente usuário Admin pode acessar essa rota: 
 - ### Features: Foi criado uma página de pdf com os dados da tela de relatório.
 
 
