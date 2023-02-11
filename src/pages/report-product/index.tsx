@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import { Button, Flex, Text } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
 import { IRowStyle, ProductTable } from 'src/components/Table';
-import { colors } from 'src/styles/theme';
 import { TbLogout } from 'react-icons/tb';
 import { useUserContext } from 'src/context/authProvider';
 import { useIsAuthenticated } from 'src/hooks';
@@ -25,18 +24,15 @@ export default function Report() {
 
   const isAuthenticated = useIsAuthenticated();
 
-  const totalQuantity = useRef<number>(
-    transactions.reduce((acc, transaction) => transaction.quantity + acc, 0) ??
-      0
-  );
+  const isAdmin = userAuth?.usuario.isAdmin;
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
-    } else if (!userAuth?.usuario.isAdmin) {
+    } else if (!isAdmin) {
       router.push('/');
     }
-  }, [isAuthenticated, router, userAuth?.usuario.isAdmin]);
+  }, [isAuthenticated, router, isAdmin]);
 
   const rowStyles = useMemo<IRowStyle[]>(
     () =>
@@ -62,7 +58,7 @@ export default function Report() {
     });
   }, [transactions]);
 
-  if (!isAuthenticated) return null;
+  if (!isAuthenticated || !isAdmin) return null;
 
   return (
     <>
@@ -77,12 +73,15 @@ export default function Report() {
         <Flex
           justifyContent='space-around'
           fontWeight='700'
-          bg={colors.gray['800']}
+          bg='gray.800'
           h='100px'
           alignItems='center'
-          color={colors.gray['300']}
+          color='gray.300'
         >
-          <Text>{`Quantidade Total: [${totalQuantity.current}]`}</Text>
+          <Text>{`Quantidade Total: [${transactions.reduce(
+            (acc, transaction) => transaction.quantity + acc,
+            0
+          )}]`}</Text>
           <Flex
             gap={2}
             alignItems='center'
@@ -90,7 +89,7 @@ export default function Report() {
             cursor='pointer'
             onClick={handleLogout}
           >
-            Sair <TbLogout size={30} color={colors.gray['300']} />
+            Sair <TbLogout size={30} color='lightgray' />
           </Flex>
         </Flex>
 
