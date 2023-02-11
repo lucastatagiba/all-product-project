@@ -1,6 +1,6 @@
-import { memo, ReactNode, useEffect, useState } from 'react';
+import { memo, ReactNode, useState } from 'react';
 import {
-  Table,
+  Table as TableFromChakra,
   Thead,
   Tbody,
   Tr,
@@ -17,9 +17,8 @@ import {
   BsFillArrowDownCircleFill,
   BsFillArrowUpCircleFill,
 } from 'react-icons/bs';
-import { colors } from 'src/styles/theme';
 
-export interface IOrdering {
+interface IOrdering {
   [key: string]: ORDER_KEYS;
 }
 
@@ -28,7 +27,7 @@ export interface IRowStyle {
   styles: TableRowProps;
 }
 
-export interface SortProps {
+interface SortProps {
   title: string;
   value: string;
 }
@@ -38,11 +37,10 @@ enum ORDER_KEYS {
   DESC = 'desc',
 }
 
-interface IProps extends TableProps {
+interface Props extends TableProps {
   titles: string[];
   titlesAndValues?: SortProps[];
   content: (ReactNode[] | JSX.Element[])[];
-  data?: any;
   rowsStyles?: IRowStyle[];
   actionAfterOrdering?: ({
     keys,
@@ -72,16 +70,15 @@ function createSortQueryString(order: IOrdering, titles: SortProps[]) {
   };
 }
 
-export const ProductTable = memo(
+export const Table = memo(
   ({
     titles,
     titlesAndValues = [],
     content,
-    data,
     rowsStyles,
     actionAfterOrdering,
     ...rest
-  }: IProps) => {
+  }: Props) => {
     const [order, setOrder] = useState({} as IOrdering);
 
     const handleChangeOrdering = (title: string) => {
@@ -105,8 +102,8 @@ export const ProductTable = memo(
 
     return content.length > 0 ? (
       <Box overflowX='auto' {...rest}>
-        <Table size='lg'>
-          <Thead bg={colors.black[900]} textAlign='center'>
+        <TableFromChakra size='lg'>
+          <Thead bg='black.900' textAlign='center'>
             <Tr>
               {titles.map((title, index) => {
                 const cursorType =
@@ -116,7 +113,7 @@ export const ProductTable = memo(
                 return (
                   <Th
                     key={title}
-                    color={colors.white['pure']}
+                    color='white'
                     fontSize={14}
                     fontFamily='Roboto'
                     lineHeight='16px'
@@ -127,7 +124,7 @@ export const ProductTable = memo(
                     }
                     width='300px'
                     height='60px'
-                    bg={order?.[title] ? colors.black[500] : colors.black[900]}
+                    bg={order?.[title] ? 'blackAlpha.500' : 'blackAlpha.900'}
                   >
                     <Flex>
                       {title}
@@ -167,7 +164,7 @@ export const ProductTable = memo(
               </Tr>
             ))}
           </Tbody>
-        </Table>
+        </TableFromChakra>
       </Box>
     ) : (
       <Text fontSize={'25px'} textAlign='center' padding={'30px'}>
@@ -177,5 +174,5 @@ export const ProductTable = memo(
   }
 );
 
-ProductTable.displayName = 'ProductTable';
-export default ProductTable;
+Table.displayName = 'Table';
+export default Table;
