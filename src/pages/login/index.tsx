@@ -32,6 +32,7 @@ const Login = () => {
   const isAuthenticated = useIsAuthenticated();
   const [loginError, setLoginError] = useState<string>();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const hasInputValue = inputValue.email?.length && inputValue.password?.length;
   const hasLoginError = !!loginError?.length;
@@ -42,6 +43,7 @@ const Login = () => {
 
   const submitLogin = async () => {
     try {
+      setIsLoading(true);
       const { data } = await apiWithAuth.post<IAuthState>(routes.auth.login, {
         email: inputValue.email,
         password: inputValue.password,
@@ -50,6 +52,8 @@ const Login = () => {
       handleLogin(data);
     } catch (error) {
       setLoginError('Email ou senha inválidos');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -152,6 +156,7 @@ const Login = () => {
           </Box>
 
           <Button
+            isLoading={isLoading}
             onClick={submitLogin}
             mt={10}
             colorScheme='blackAlpha'
