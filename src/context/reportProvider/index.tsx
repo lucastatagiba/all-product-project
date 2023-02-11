@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react';
 import {
   PropsWithChildren,
   createContext,
@@ -7,8 +6,9 @@ import {
   useCallback,
   useEffect,
 } from 'react';
+import { useToast } from '@chakra-ui/react';
 import { useIsAuthenticated } from 'src/hooks';
-import { apiWithAuth } from 'src/services';
+import { apiWithAuth, routes } from 'src/services';
 
 export interface Transactions {
   id: number;
@@ -40,7 +40,7 @@ export const ReportProvider = ({ children }: PropsWithChildren) => {
   const fetchTransactions = useCallback(async () => {
     try {
       const { data } = await apiWithAuth.get<Transactions[]>(
-        '/transactions?_expand=product'
+        routes.transactions.list
       );
 
       setTransactions(data);
