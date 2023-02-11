@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Button, Center, Flex, Text, useToast } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
-import { IRowStyle, ProductTable } from 'src/components/Table';
+import { IRowStyle, Table } from 'src/components/Table';
 import { useUserContext } from 'src/context/authProvider';
 import Header from 'src/components/header';
 import { apiWithAuth, routes } from 'src/services';
@@ -147,7 +147,7 @@ const ProductList = () => {
           leftContentHeader={`Total de Produtos: [${totalProduct.current}]`}
         />
 
-        <ProductTable
+        <Table
           content={tableContent}
           titlesAndValues={titles}
           titles={titles.map((title) => title.title)}

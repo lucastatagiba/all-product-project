@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import { Button, Flex, Text } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
-import { IRowStyle, ProductTable } from 'src/components/Table';
+import { IRowStyle, Table } from 'src/components/Table';
 import { useUserContext } from 'src/context/authProvider';
 import { useIsAuthenticated } from 'src/hooks';
 import { useRouter } from 'next/router';
@@ -77,7 +77,7 @@ const Report = () => {
           )}]`}
         />
 
-        <ProductTable
+        <Table
           content={tableContent}
           titlesAndValues={titles}
           titles={titles.map((title) => title.title)}
