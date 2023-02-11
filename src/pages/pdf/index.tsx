@@ -1,30 +1,86 @@
+import Head from 'next/head';
 import { Page, Document, StyleSheet, View, Text } from '@react-pdf/renderer';
 import { PDFViewer } from '@react-pdf/renderer';
-
-import Head from 'next/head';
 import PageWithAuth from 'src/components/PageWithAuth';
+import { Transactions, useReportContext } from 'src/context/reportProvider';
 
 const styles = StyleSheet.create({
   page: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     backgroundColor: '#E4E4E4',
   },
-  section: {
-    margin: 10,
-    padding: 10,
-    flexGrow: 1,
+  title: {
+    padding: '0px 5px',
+    backgroundColor: 'black',
+    color: 'white',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    height: '50px',
+    alignItems: 'center',
+    fontSize: '15px',
+  },
+  column: {
+    color: 'black',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    height: '50px',
+    alignItems: 'center',
+  },
+  row: {
+    padding: '0px 30px',
+    width: '25%',
+  },
+  line: {
+    backgroundColor: 'gray',
+    justifyContent: 'space-around',
+    height: '1px',
   },
 });
 
-const PdfDocument = () => (
-  <Document>
-    <Page size='A4' style={styles.page}>
-      <View style={styles.section}></View>
-    </Page>
-  </Document>
-);
+const PdfDocument = ({ transactions }: { transactions: Transactions[] }) => {
+  const contentTransactions = transactions.map((transaction) => {
+    const { id, cost, quantity, product } = transaction;
+    return (
+      <>
+        <View key={id} style={[styles.column, { fontSize: 10 }]}>
+          <Text style={[styles.row]}>{product.name}</Text>
+          <Text style={[styles.row]}>{quantity}</Text>
+          <Text style={[styles.row]}>R$ {product.cost},00</Text>
+          <Text style={[styles.row]}>R$ {quantity * cost},00</Text>
+        </View>
+        <View style={styles.line}></View>
+      </>
+    );
+  });
+
+  return (
+    <Document>
+      <Page size='A4' style={styles.page}>
+        <View style={styles.title}>
+          <Text>Nome</Text>
+          <Text>Quantidade</Text>
+          <Text>Valor unitário</Text>
+          <Text>Preço total</Text>
+        </View>
+
+        {contentTransactions}
+        <Text
+          style={{
+            marginTop: '20px',
+            fontSize: '14px',
+          }}
+        >
+          Quantidade total:{' '}
+          {transactions.reduce((acc, { quantity }) => quantity + acc, 0) ?? 0}
+        </Text>
+      </Page>
+    </Document>
+  );
+};
 
 export default function Pdf() {
+  const { transactions } = useReportContext();
+
   return (
     <>
       <Head>
@@ -36,7 +92,7 @@ export default function Pdf() {
 
       <PageWithAuth>
         <PDFViewer style={{ width: '100vw', height: '100vh' }}>
-          <PdfDocument />
+          <PdfDocument transactions={transactions} />
         </PDFViewer>
       </PageWithAuth>
     </>
