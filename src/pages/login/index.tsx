@@ -95,9 +95,9 @@ const Login = () => {
               onKeyDown={handleKeypress}
               placeholder='Insira seu email'
               _placeholder={{
-                color: 'gray.300',
+                color: 'gray',
               }}
-              bg='gray.700'
+              bg='blackAlpha.400'
               name='email'
               type='email'
               onChange={(e) => {
@@ -114,9 +114,9 @@ const Login = () => {
                 onKeyDown={handleKeypress}
                 placeholder='Insira sua senha'
                 _placeholder={{
-                  color: 'gray.300',
+                  color: 'gray',
                 }}
-                bg='gray.700'
+                bg='blackAlpha.400'
                 name='password'
                 type={showPassword ? 'text' : 'password'}
                 onChange={(e) => {
@@ -133,7 +133,7 @@ const Login = () => {
                   h='2rem'
                   w='1.5rem'
                   cursor='pointer'
-                  color='gray.800'
+                  color='gray.300'
                   as={showPassword ? AiFillEyeInvisible : AiFillEye}
                   onClick={() => setShowPassword(!showPassword)}
                 />
@@ -141,19 +141,22 @@ const Login = () => {
             </InputGroup>
           </Box>
 
-          {!hasInputValue ? (
-            <FormErrorMessage>
-              Os campos acima são obrigatórios!
-            </FormErrorMessage>
-          ) : (
-            hasLoginError && <FormErrorMessage>{loginError}</FormErrorMessage>
-          )}
+          <Box height={4}>
+            {!hasInputValue ? (
+              <FormErrorMessage>
+                Os campos acima são obrigatórios!
+              </FormErrorMessage>
+            ) : (
+              hasLoginError && <FormErrorMessage>{loginError}</FormErrorMessage>
+            )}
+          </Box>
 
           <Button
             onClick={submitLogin}
             mt={10}
             colorScheme='blackAlpha'
             type='submit'
+            color='gray.300'
           >
             Login
           </Button>
