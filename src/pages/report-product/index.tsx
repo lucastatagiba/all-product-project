@@ -8,6 +8,7 @@ import { useUserContext } from 'src/context/authProvider';
 import { useIsAuthenticated } from 'src/hooks';
 import { useRouter } from 'next/router';
 import { useReportContext } from 'src/context/reportProvider';
+import Header from 'src/components/header';
 
 const titles = [
   { title: 'Produto', value: '' },
@@ -70,28 +71,12 @@ const Report = () => {
       </Head>
 
       <PageWithAuth>
-        <Flex
-          justifyContent='space-around'
-          fontWeight='700'
-          bg='gray.800'
-          h='100px'
-          alignItems='center'
-          color='gray.300'
-        >
-          <Text>{`Quantidade Total: [${transactions.reduce(
+        <Header
+          leftContentHeader={`Quantidade Total: [${transactions.reduce(
             (acc, transaction) => transaction.quantity + acc,
             0
-          )}]`}</Text>
-          <Flex
-            gap={2}
-            alignItems='center'
-            fontSize={18}
-            cursor='pointer'
-            onClick={handleLogout}
-          >
-            Sair <TbLogout size={30} color='lightgray' />
-          </Flex>
-        </Flex>
+          )}]`}
+        />
 
         <ProductTable
           content={tableContent}
