@@ -7,7 +7,7 @@ import { windowExist } from 'src/utils/window';
 import { useIsomorphicLayoutEffect } from 'framer-motion';
 import { ReportProvider } from 'src/context/reportProvider';
 
-export default function App({ Component, pageProps }: AppProps) {
+const App = ({ Component, pageProps }: AppProps) => {
   const [showChild, setShowChild] = useState(false);
 
   useIsomorphicLayoutEffect(() => {
@@ -27,4 +27,5 @@ export default function App({ Component, pageProps }: AppProps) {
       </UserProvider>
     </ChakraProvider>
   );
-}
+};
+export default App;

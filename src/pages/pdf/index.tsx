@@ -82,7 +82,7 @@ const PdfDocument = ({ transactions }: { transactions: Transactions[] }) => {
   );
 };
 
-export default function Pdf() {
+const Pdf = () => {
   const { transactions } = useReportContext();
   const isAuthenticated = useIsAuthenticated();
   const { userAuth } = useUserContext();
@@ -116,4 +116,6 @@ export default function Pdf() {
       </PageWithAuth>
     </>
   );
-}
+};
+
+export default Pdf;

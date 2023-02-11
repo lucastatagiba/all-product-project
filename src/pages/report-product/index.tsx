@@ -16,7 +16,7 @@ const titles = [
   { title: 'Preço Total', value: '' },
 ];
 
-export default function Report() {
+const Report = () => {
   const router = useRouter();
   const { handleLogout, userAuth } = useUserContext();
 
@@ -108,4 +108,5 @@ export default function Report() {
       </PageWithAuth>
     </>
   );
-}
+};
+export default Report;
