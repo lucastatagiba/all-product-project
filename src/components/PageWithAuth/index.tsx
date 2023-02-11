@@ -20,7 +20,7 @@ const PageWithAuth: FC<PropsWithChildren> = ({ children }) => {
       });
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, toast]);
 
   return <Box>{children}</Box>;
 };

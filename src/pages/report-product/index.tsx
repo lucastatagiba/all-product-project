@@ -37,7 +37,7 @@ export default function Report() {
     } else if (!userAuth?.usuario.isAdmin) {
       router.push('/');
     }
-  });
+  }, [isAuthenticated, router, userAuth?.usuario.isAdmin]);
 
   const rowStyles = useMemo<IRowStyle[]>(
     () =>
@@ -93,7 +93,7 @@ export default function Report() {
   useEffect(() => {
     if (!isAuthenticated) return;
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions, isAuthenticated]);
 
   const tableContent = useMemo(() => {
     return transactions.map((transaction) => {
@@ -144,12 +144,7 @@ export default function Report() {
           height='400px'
         />
         <Flex justifyContent='center'>
-          <Button
-            bg={colors.gray['700']}
-            _hover={{ background: colors.gray['400'] }}
-            color={colors.gray['800']}
-            onClick={() => console.log('gerar pdf')}
-          >
+          <Button colorScheme='blackAlpha' onClick={() => router.push('/pdf')}>
             Gerar PDF
           </Button>
         </Flex>
