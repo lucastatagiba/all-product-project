@@ -21,7 +21,7 @@ Usuários criados: {
     {
       "email": "bruno@email.com",
       "password": "bruno",
-      "isAdmin": true
+      "isAdmin": true // Usuário admin
     },
     {
       "email": "techie@email.com",
