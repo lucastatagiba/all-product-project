@@ -7,6 +7,11 @@ Descrição: Projeto consiste em 4 telas (página de login, página principal on
 Projeto foi construido usando as seguintes técnologias: ReactJs, NextJs, Typescript, Axios, Chakra-ui, React-icons e React-pdf.
 Projeto consome uma API fake (json server).
 
+- ## Features de rota: 
+- Se o usuário estiver deslogado ele não consegue acessar nenhuma rota (uma mensagem aparecerá, pedindo para o mesmo efetuar login)
+- Se o usuário estiver logado em qualquer rota, se ele tentar ir para a rota de login, ele será redirecionado para a rota principal '/'.
+- Se o token do usuário expirar (expira em 1 hora), ao tentar acessar qualquer rota existente ele será redirecionado para o login com um token avisando-o da expiração do token. 
+
 Link: 
 
 
