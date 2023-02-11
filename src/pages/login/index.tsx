@@ -67,7 +67,7 @@ const Login = () => {
       alignItems='center'
       w={300}
       h={400}
-      bg='gray.800'
+      bg='blackAlpha.700'
       margin='100px auto'
       gap={5}
       borderRadius={5}

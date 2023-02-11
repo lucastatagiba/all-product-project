@@ -9,7 +9,7 @@ const Header = (props: { leftContentHeader: string }) => {
     <Flex
       justifyContent='space-around'
       fontWeight='700'
-      bg='gray.800'
+      bg='blackAlpha.700'
       h='100px'
       alignItems='center'
       color='gray.300'
