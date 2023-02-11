@@ -22,6 +22,8 @@ const PageWithAuth: FC<PropsWithChildren> = ({ children }) => {
     }
   }, []);
 
+  if (!isAuthenticated) return null;
+
   return <Box>{children}</Box>;
 };
 

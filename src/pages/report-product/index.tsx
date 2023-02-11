@@ -58,7 +58,7 @@ const Report = () => {
     });
   }, [transactions]);
 
-  if (!isAuthenticated || !isAdmin) return null;
+  if (isAuthenticated && !isAdmin) return null;
 
   return (
     <>
