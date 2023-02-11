@@ -3,7 +3,6 @@ import Head from 'next/head';
 import { Button, Flex, Text } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
 import { IRowStyle, ProductTable } from 'src/components/Table';
-import { TbLogout } from 'react-icons/tb';
 import { useUserContext } from 'src/context/authProvider';
 import { useIsAuthenticated } from 'src/hooks';
 import { useRouter } from 'next/router';
@@ -19,7 +18,7 @@ const titles = [
 
 const Report = () => {
   const router = useRouter();
-  const { handleLogout, userAuth } = useUserContext();
+  const { userAuth } = useUserContext();
 
   const { transactions } = useReportContext();
 
