@@ -7,7 +7,7 @@ import { IRowStyle, ProductTable } from 'src/components/Table';
 import { colors } from 'src/styles/theme';
 import { TbLogout } from 'react-icons/tb';
 import { apiWithAuth } from 'src/services';
-import { useUserContext } from 'src/context';
+import { useUserContext } from 'src/context/authProvider';
 import { useIsAuthenticated } from 'src/hooks';
 
 const titles = [

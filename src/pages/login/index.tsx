@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Button, Flex, Input, Text, useToast } from '@chakra-ui/react';
 import { colors } from 'src/styles/theme';
 import { IAuthState } from 'src/utils/storage';
-import { useUserContext } from 'src/context';
+import { useUserContext } from 'src/context/authProvider';
 import { apiWithAuth } from 'src/services';
 import Head from 'next/head';
 import { useIsAuthenticated } from 'src/hooks';
