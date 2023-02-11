@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { Button, Center, Flex, Text, useToast } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
 import { IRowStyle, ProductTable } from 'src/components/Table';
 import { colors } from 'src/styles/theme';
 import { TbLogout } from 'react-icons/tb';
 import { apiWithAuth } from 'src/services';
-import { useUserContext } from 'src/context';
+import { useUserContext } from 'src/context/authProvider';
 import { useIsAuthenticated } from 'src/hooks';
 
 const titles = [
@@ -25,6 +26,14 @@ interface Products {
   quantity: number;
   locationId: number;
   familyId: number;
+  location: {
+    id: number;
+    name: string;
+  };
+  family: {
+    id: number;
+    name: string;
+  };
 }
 
 interface Locations {
@@ -47,15 +56,14 @@ interface Ordenation {
 
 export default function Home() {
   const [products, setProducts] = useState([] as Products[]);
-  const [locations, setLocations] = useState([] as Locations[]);
-  const [families, setFamilies] = useState([] as Families[]);
   const [pagination, setPagination] = useState<Pagination>({
     _page: 1,
   });
   const [ordenation, setOrdenation] = useState<Ordenation>();
   const toast = useToast();
+  const router = useRouter();
   const totalProduct = useRef<number>();
-  const { handleLogout } = useUserContext();
+  const { handleLogout, userAuth } = useUserContext();
 
   const isAuthenticated = useIsAuthenticated();
 
@@ -73,19 +81,21 @@ export default function Home() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await apiWithAuth.get<Products[]>('/products', {
-        params: {
-          ...pagination,
-          _limit: 6,
-          _sort: ordenation?.keys,
-          _order: ordenation?.orders,
-        },
-      });
+      const response = await apiWithAuth.get<Products[]>(
+        '/products?_expand=family&_expand=location',
+        {
+          params: {
+            ...pagination,
+            _limit: 6,
+            _sort: ordenation?.keys,
+            _order: ordenation?.orders,
+          },
+        }
+      );
       totalProduct.current = response.headers['x-total-count'];
 
       setProducts(response.data);
     } catch (error: any) {
-      console.log(error.message);
       if (error.status === 401 && error.message.includes('token')) {
         if (!toast.isActive('token-error-id')) {
           toast({
@@ -113,100 +123,26 @@ export default function Home() {
         }
       }
     }
-  }, [pagination, ordenation]);
-
-  const fetchLocations = useCallback(async () => {
-    try {
-      const { data } = await apiWithAuth.get<Locations[]>('/locations');
-      setLocations(data);
-    } catch (error: any) {
-      if (error.status === 401) {
-        if (!toast.isActive('token-error-id')) {
-          toast({
-            description:
-              'Token de autenticação expirado, para continuar refaça login',
-            status: 'error',
-            duration: 4000,
-            position: 'top-right',
-            containerStyle: { color: 'white' },
-            isClosable: true,
-            id: 'token-error-id',
-          });
-        }
-      } else {
-        if (!toast.isActive('toast-error-id')) {
-          toast({
-            description: 'Não foi possível buscar as Localizações',
-            status: 'error',
-            duration: 4000,
-            position: 'top-right',
-            containerStyle: { color: 'white' },
-            isClosable: true,
-            id: 'toast-error-id',
-          });
-        }
-      }
-    }
-  }, []);
-
-  const fetchFamilies = useCallback(async () => {
-    try {
-      const { data } = await apiWithAuth.get<Families[]>('/families');
-      setFamilies(data);
-    } catch (error: any) {
-      if (error.status === 401) {
-        if (!toast.isActive('token-error-id')) {
-          toast({
-            description:
-              'Token de autenticação expirado, para continuar refaça login',
-            status: 'error',
-            duration: 4000,
-            position: 'top-right',
-            containerStyle: { color: 'white' },
-            isClosable: true,
-            id: 'token-error-id',
-          });
-        }
-      } else {
-        if (!toast.isActive('toast-error-id')) {
-          toast({
-            description: 'Não foi possível buscar as Localizações',
-            status: 'error',
-            duration: 4000,
-            position: 'top-right',
-            containerStyle: { color: 'white' },
-            isClosable: true,
-            id: 'toast-error-id',
-          });
-        }
-      }
-    }
-  }, []);
+  }, [pagination, ordenation?.keys, ordenation?.orders, toast]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
     fetchProducts();
-    fetchLocations();
-    fetchFamilies();
-  }, [pagination, ordenation]);
+  }, [pagination, ordenation, isAuthenticated, fetchProducts]);
 
   const tableContent = useMemo(() => {
     return products.map((product) => {
-      const { id, name, cost, quantity, locationId, familyId } = product;
+      const { id, name, cost, quantity, location, family } = product;
       return [
         <Text key={id}>{id}</Text>,
         <Text key={id}>{name}</Text>,
-        <Text key={id}>{cost}</Text>,
+        <Text key={id}>R$ {cost},00</Text>,
         <Text key={id}>{quantity}</Text>,
-        <Text key={id}>
-          {locations.find((location) => location.id === locationId)?.name ?? ''}
-        </Text>,
-        <Text key={product.id}>
-          {families.find((family) => family.id === familyId)?.name ?? ''}
-        </Text>,
+        <Text key={id}>{location.name}</Text>,
+        <Text key={product.id}>{family.name}</Text>,
       ];
     });
-  }, [products, families, locations]);
+  }, [products]);
 
   return (
     <>
@@ -244,7 +180,18 @@ export default function Home() {
           titles={titles.map((title) => title.title)}
           actionAfterOrdering={(query) => setOrdenation(query)}
           rowsStyles={rowStyles}
+          height='500px'
         />
+        {userAuth?.usuario.isAdmin && (
+          <Flex flexDirection='row-reverse' m='20px 10px'>
+            <Button
+              colorScheme='blackAlpha'
+              onClick={() => router.push('/report-product')}
+            >
+              Acessar relatório
+            </Button>
+          </Flex>
+        )}
 
         <Center
           flexDirection={{
@@ -256,7 +203,7 @@ export default function Home() {
           <Flex mt='100px' gap={20}>
             <Button
               isDisabled={pagination._page === 1}
-              bg={colors.gray['700']}
+              colorScheme='blackAlpha'
               onClick={() => {
                 if (pagination._page > 1) {
                   setPagination({
@@ -269,7 +216,7 @@ export default function Home() {
             </Button>
             <Text fontWeight='700'>{`Página: [${pagination._page}]`}</Text>
             <Button
-              bg={colors.gray['700']}
+              colorScheme='blackAlpha'
               isDisabled={
                 !!totalProduct.current &&
                 totalProduct.current < pagination._page * 6
