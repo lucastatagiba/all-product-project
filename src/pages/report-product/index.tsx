@@ -1,35 +1,34 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import Head from 'next/head';
-import { Button, Center, Flex, Text, useToast } from '@chakra-ui/react';
+import { Button, Flex, Text } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
 import { IRowStyle, ProductTable } from 'src/components/Table';
 import { colors } from 'src/styles/theme';
 import { TbLogout } from 'react-icons/tb';
-import { apiWithAuth } from 'src/services';
-import { useUserContext } from 'src/context';
+import { useUserContext } from 'src/context/authProvider';
 import { useIsAuthenticated } from 'src/hooks';
 import { useRouter } from 'next/router';
+import { useReportContext } from 'src/context/reportProvider';
 
 const titles = [
+  { title: 'Produto', value: '' },
   { title: 'Quantidade', value: '' },
-  { title: 'preço Total', value: '' },
+  { title: 'Valor unitário', value: '' },
+  { title: 'Preço Total', value: '' },
 ];
 
-interface Transactions {
-  id: number;
-  cost: number;
-  quantity: number;
-  productId: number;
-}
-
 export default function Report() {
-  const [transactions, setTransactions] = useState([] as Transactions[]);
-  const toast = useToast();
   const router = useRouter();
-  const totalQuantity = useRef<number>();
   const { handleLogout, userAuth } = useUserContext();
 
+  const { transactions } = useReportContext();
+
   const isAuthenticated = useIsAuthenticated();
+
+  const totalQuantity = useRef<number>(
+    transactions.reduce((acc, transaction) => transaction.quantity + acc, 0) ??
+      0
+  );
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -51,59 +50,19 @@ export default function Report() {
     [transactions]
   );
 
-  const fetchTransactions = useCallback(async () => {
-    try {
-      const { data } = await apiWithAuth.get<Transactions[]>('/transactions');
-
-      setTransactions(data);
-      totalQuantity.current = data.reduce(
-        (acc, transaction) => transaction.quantity + acc,
-        0
-      );
-    } catch (error: any) {
-      if (error.status === 401 && error.message.includes('token')) {
-        if (!toast.isActive('token-error-id')) {
-          toast({
-            description:
-              'Token de autenticação expirado, para continuar refaça login',
-            status: 'error',
-            duration: 4000,
-            position: 'top-right',
-            containerStyle: { color: 'white' },
-            isClosable: true,
-            id: 'token-error-id',
-          });
-        }
-      } else {
-        if (!toast.isActive('toast-error-id')) {
-          toast({
-            description: 'Não foi possível buscar as transações',
-            status: 'error',
-            duration: 4000,
-            position: 'top-right',
-            containerStyle: { color: 'white' },
-            isClosable: true,
-            id: 'toast-error-id',
-          });
-        }
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    fetchTransactions();
-  }, [fetchTransactions, isAuthenticated]);
-
   const tableContent = useMemo(() => {
     return transactions.map((transaction) => {
-      const { id, quantity, cost } = transaction;
+      const { id, quantity, cost, product } = transaction;
       return [
+        <Text key={id}>{product.name}</Text>,
         <Text key={id}>{quantity}</Text>,
+        <Text key={id}>{product.cost}</Text>,
         <Text key={id}>R$ {cost * quantity},00</Text>,
       ];
     });
   }, [transactions]);
+
+  if (!isAuthenticated) return null;
 
   return (
     <>
@@ -123,7 +82,7 @@ export default function Report() {
           alignItems='center'
           color={colors.gray['300']}
         >
-          <Text>{`Total de Produtos: [${totalQuantity.current}]`}</Text>
+          <Text>{`Quantidade Total: [${totalQuantity.current}]`}</Text>
           <Flex
             gap={2}
             alignItems='center'
@@ -140,7 +99,6 @@ export default function Report() {
           titlesAndValues={titles}
           titles={titles.map((title) => title.title)}
           rowsStyles={rowStyles}
-          alignTextOnCenter
           height='400px'
         />
         <Flex justifyContent='center'>
