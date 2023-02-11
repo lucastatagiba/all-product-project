@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
 });
 
 const PdfDocument = ({ transactions }: { transactions: Transactions[] }) => {
+  if (!transactions.length) return null;
   const contentTransactions = transactions.map((transaction) => {
     const { id, cost, quantity, product } = transaction;
     return (

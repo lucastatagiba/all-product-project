@@ -34,19 +34,19 @@ const Report = () => {
     }
   }, [isAuthenticated, router, isAdmin]);
 
-  const rowStyles = useMemo<IRowStyle[]>(
-    () =>
-      transactions.map((_, index) => ({
-        rowIndex: index,
-        styles: {
-          fontSize: 18,
-          fontWeight: 700,
-        },
-      })),
-    [transactions]
-  );
+  const rowStyles = useMemo<IRowStyle[]>(() => {
+    if (!transactions.length) return [];
+    return transactions.map((_, index) => ({
+      rowIndex: index,
+      styles: {
+        fontSize: 18,
+        fontWeight: 700,
+      },
+    }));
+  }, [transactions]);
 
   const tableContent = useMemo(() => {
+    if (!transactions.length) return [];
     return transactions.map((transaction) => {
       const { id, quantity, cost, product } = transaction;
       return [

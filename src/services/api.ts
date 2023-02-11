@@ -3,7 +3,7 @@ import Router from 'next/router';
 import { getAuthStorage, removeAuthStorage } from 'src/utils/storage';
 
 const apiWithAuth = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: 'https://fake-api-jwt-json-server-tau.vercel.app',
 });
 
 apiWithAuth.interceptors.request.use((config) => {
