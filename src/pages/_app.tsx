@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import type { AppProps } from 'next/app';
 import { ChakraProvider } from '@chakra-ui/react';
-import { UserProvider } from 'src/context';
+import { UserProvider } from 'src/context/authProvider';
 import { theme } from 'src/styles/theme';
 import { windowExist } from 'src/utils/window';
 import { useIsomorphicLayoutEffect } from 'framer-motion';
+import { ReportProvider } from 'src/context/reportProvider';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [showChild, setShowChild] = useState(false);
@@ -20,7 +21,9 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider theme={theme}>
       <UserProvider>
-        <Component {...pageProps} />
+        <ReportProvider>
+          <Component {...pageProps} />
+        </ReportProvider>
       </UserProvider>
     </ChakraProvider>
   );
