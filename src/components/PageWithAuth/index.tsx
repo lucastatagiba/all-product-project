@@ -10,17 +10,20 @@ const PageWithAuth: FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      toast({
-        description: 'Você precisa logar antes de acessar essa rota.',
-        status: 'error',
-        duration: 4000,
-        position: 'top-right',
-        containerStyle: { color: 'white' },
-        isClosable: true,
-      });
+      if (!toast.isActive('expiredToken') && !toast.isActive('notLogged')) {
+        toast({
+          description: 'Você precisa logar antes de acessar essa rota.',
+          status: 'error',
+          duration: 4000,
+          position: 'top-right',
+          containerStyle: { color: 'white' },
+          isClosable: true,
+          id: 'notLogged',
+        });
+      }
       router.push('/login');
     }
-  }, []);
+  }, [isAuthenticated, router, toast]);
 
   if (!isAuthenticated) return null;
 

@@ -48,14 +48,15 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     if (!userAuth) {
       removeAuthStorage();
     }
+  }, [userAuth]);
 
+  useEffect(() => {
     apiWithAuth.interceptors.response.use(
       (response) => response,
       (error) => {
         if (
-          error instanceof AxiosError &&
-          error?.response?.status === 401 &&
-          userAuth
+          error?.status === 401 &&
+          error?.message !== 'Incorrect email or password'
         ) {
           handleLogout();
           if (!toast.isActive('expiredToken')) {
@@ -75,7 +76,7 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
         return Promise.reject(error?.response?.data);
       }
     );
-  }, [handleLogout, toast, userAuth]);
+  }, [handleLogout, toast]);
 
   return (
     <UserContext.Provider value={{ handleLogin, handleLogout, userAuth }}>
