@@ -4,14 +4,18 @@ import {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from 'react';
+import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
+import { useToast } from '@chakra-ui/react';
 import {
   IAuthState,
   getAuthStorage,
   removeAuthStorage,
   setAuthStorage,
 } from 'src/utils/storage';
+import { apiWithAuth } from 'src/services';
 
 interface UserAuthContext {
   handleLogin: (auth: IAuthState) => void;
@@ -26,6 +30,7 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     getAuthStorage()
   );
   const router = useRouter();
+  const toast = useToast();
 
   const handleLogin = (auth: IAuthState) => {
     setUserAuth(auth);
@@ -33,17 +38,44 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     router.push('/');
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setUserAuth(undefined);
     router.push('/login');
     removeAuthStorage();
-  };
+  }, [router]);
 
   useEffect(() => {
     if (!userAuth) {
       removeAuthStorage();
     }
-  }, [userAuth]);
+
+    apiWithAuth.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (
+          error instanceof AxiosError &&
+          error?.response?.status === 401 &&
+          userAuth
+        ) {
+          handleLogout();
+          if (!toast.isActive('expiredToken')) {
+            toast({
+              description:
+                'Token de autenticação expirado, para continuar refaça login',
+              status: 'error',
+              duration: 4000,
+              position: 'top-right',
+              containerStyle: { color: 'white' },
+              isClosable: true,
+              id: 'expiredToken',
+            });
+          }
+        }
+
+        return Promise.reject(error?.response?.data);
+      }
+    );
+  }, [handleLogout, toast, userAuth]);
 
   return (
     <UserContext.Provider value={{ handleLogin, handleLogout, userAuth }}>

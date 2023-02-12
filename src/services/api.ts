@@ -1,15 +1,13 @@
-import axios, { AxiosError } from 'axios';
-import Router from 'next/router';
-import { getAuthStorage, removeAuthStorage } from 'src/utils/storage';
+import axios from 'axios';
+import { getAuthStorage } from 'src/utils/storage';
 
-const apiWithAuth = axios.create({
+export const apiWithAuth = axios.create({
   baseURL: 'https://fake-api-jwt-json-server-tau.vercel.app',
 });
 
 apiWithAuth.interceptors.request.use((config) => {
+  const auth = getAuthStorage();
   if (typeof window !== 'undefined') {
-    const auth = getAuthStorage();
-
     if (auth) {
       const jwt = auth.token;
 
@@ -19,17 +17,3 @@ apiWithAuth.interceptors.request.use((config) => {
 
   return config;
 });
-
-apiWithAuth.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<{ mensagem?: string }>) => {
-    if (error.response?.status === 401) {
-      removeAuthStorage();
-      Router.push('/login');
-    }
-
-    return Promise.reject(error.response?.data);
-  }
-);
-
-export { apiWithAuth };
