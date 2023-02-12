@@ -4,10 +4,9 @@ import {
   useContext,
   useState,
   useCallback,
-  useEffect,
 } from 'react';
+import { AxiosError } from 'axios';
 import { useToast } from '@chakra-ui/react';
-import { useIsAuthenticated } from 'src/hooks';
 import { apiWithAuth, routes } from 'src/services';
 
 export interface Transactions {
@@ -27,6 +26,7 @@ export interface Transactions {
 
 interface ReportContext {
   transactions: Transactions[];
+  fetchTransactions: () => Promise<void>;
 }
 
 const ReportContext = createContext({} as ReportContext);
@@ -35,7 +35,6 @@ export const ReportProvider = ({ children }: PropsWithChildren) => {
   const [transactions, setTransactions] = useState([] as Transactions[]);
 
   const toast = useToast();
-  const isAuthenticated = useIsAuthenticated();
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -44,45 +43,28 @@ export const ReportProvider = ({ children }: PropsWithChildren) => {
       );
 
       setTransactions(data);
-    } catch (error: any) {
-      if (error.status === 401 && error.message.includes('token')) {
-        if (!toast.isActive('token-error-id')) {
+    } catch (error) {
+      if (error instanceof AxiosError && error.status === 500) {
+        if (!toast.isActive('transactionsError')) {
           toast({
-            description:
-              'Token de autenticação expirado, para continuar refaça login',
+            description: 'Não foi possivel buscar os as transações',
             status: 'error',
             duration: 4000,
             position: 'top-right',
             containerStyle: { color: 'white' },
             isClosable: true,
-            id: 'token-error-id',
-          });
-        }
-      } else {
-        if (!toast.isActive('toast-error-id')) {
-          toast({
-            description: 'Não foi possível buscar as transações',
-            status: 'error',
-            duration: 4000,
-            position: 'top-right',
-            containerStyle: { color: 'white' },
-            isClosable: true,
-            id: 'toast-error-id',
+            id: 'transactionsError',
           });
         }
       }
     }
-  }, []);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    fetchTransactions();
-  }, [fetchTransactions, isAuthenticated]);
+  }, [toast]);
 
   return (
     <ReportContext.Provider
       value={{
         transactions,
+        fetchTransactions,
       }}
     >
       {children}

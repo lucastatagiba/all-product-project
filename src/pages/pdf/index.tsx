@@ -1,6 +1,4 @@
-import { useEffect } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { Page, Document, StyleSheet, View, Text } from '@react-pdf/renderer';
 import { PDFViewer } from '@react-pdf/renderer';
 import PageWithAuth from 'src/components/PageWithAuth';
@@ -88,16 +86,7 @@ const Pdf = () => {
   const isAuthenticated = useIsAuthenticated();
   const { userAuth } = useUserContext();
 
-  const router = useRouter();
   const isAdmin = userAuth?.usuario.isAdmin;
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else if (!isAdmin) {
-      router.push('/');
-    }
-  }, [isAuthenticated, router, isAdmin]);
 
   if (isAuthenticated && !isAdmin) return null;
 

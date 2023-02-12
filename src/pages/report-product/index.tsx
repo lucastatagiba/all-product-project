@@ -20,19 +20,16 @@ const Report = () => {
   const router = useRouter();
   const { userAuth } = useUserContext();
 
-  const { transactions } = useReportContext();
+  const { transactions, fetchTransactions } = useReportContext();
 
   const isAuthenticated = useIsAuthenticated();
 
   const isAdmin = userAuth?.usuario.isAdmin;
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else if (!isAdmin) {
-      router.push('/');
-    }
-  }, [isAuthenticated, router, isAdmin]);
+    if (!isAuthenticated) return;
+    fetchTransactions();
+  }, [fetchTransactions, isAuthenticated]);
 
   const rowStyles = useMemo<IRowStyle[]>(() => {
     if (!transactions.length) return [];
