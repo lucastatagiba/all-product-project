@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
+import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { Button, Center, Flex, Text, useToast } from '@chakra-ui/react';
 import PageWithAuth from 'src/components/PageWithAuth';
 import { IRowStyle, Table } from 'src/components/Table';
 import { useUserContext } from 'src/context/authProvider';
 import Header from 'src/components/header';
-import { apiWithAuth, routes } from 'src/services';
+import { routes, apiWithAuth } from 'src/services';
 import { useIsAuthenticated } from 'src/hooks';
 
 const titles = [
@@ -83,30 +84,17 @@ const ProductList = () => {
       totalProduct.current = response.headers['x-total-count'];
 
       setProducts(response.data);
-    } catch (error: any) {
-      if (error.status === 401 && error.message.includes('token')) {
-        if (!toast.isActive('token-error-id')) {
+    } catch (error) {
+      if (error instanceof AxiosError && error.status === 500) {
+        if (!toast.isActive('productsError')) {
           toast({
-            description:
-              'Token de autenticação expirado, para continuar refaça login',
+            description: 'Não foi possivel buscar os produtos',
             status: 'error',
             duration: 4000,
             position: 'top-right',
             containerStyle: { color: 'white' },
             isClosable: true,
-            id: 'token-error-id',
-          });
-        }
-      } else {
-        if (!toast.isActive('toast-error-id')) {
-          toast({
-            description: 'Não foi possível buscar os produtos',
-            status: 'error',
-            duration: 4000,
-            position: 'top-right',
-            containerStyle: { color: 'white' },
-            isClosable: true,
-            id: 'toast-error-id',
+            id: 'productsError',
           });
         }
       }
